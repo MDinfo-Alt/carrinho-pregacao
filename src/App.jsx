@@ -127,9 +127,22 @@ export default function App() {
         select option { background: #060d1a; }
         ::-webkit-scrollbar { width:6px } ::-webkit-scrollbar-track { background:#060d1a }
         ::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:3px }
+        input, select { font-size:16px !important; }
+        @media (max-width: 600px) {
+          .mob-header { padding: 14px 16px !important; }
+          .mob-main   { padding: 14px 12px 100px !important; }
+          .mob-nav-btn { flex: 1 !important; min-width: 0 !important; font-size: 11px !important; padding: 12px 4px !important; }
+          .mob-row2   { flex-direction: column !important; }
+          .mob-row3   { flex-direction: column !important; }
+          .mob-mgrid  { grid-template-columns: 1fr 1fr !important; gap:10px !important; }
+          .mob-formcard { padding: 18px 14px !important; }
+          .mob-weeknav { flex-wrap: wrap !important; justify-content: center !important; gap:8px !important; }
+          .mob-addrow { flex-direction: column !important; }
+          .mob-addrow button { width: 100% !important; }
+        }
       `}</style>
 
-      <header style={S.header}>
+      <header style={S.header} className="mob-header">
         <div style={S.hInner}>
           <div style={S.hTag}>Testemunho Publico</div>
           <h1 style={S.hTitle}>Carrinho de Publicacoes</h1>
@@ -138,17 +151,17 @@ export default function App() {
 
       <nav style={S.nav}>
         {[["agenda","Agenda"],["agendar","Agendar"],["meus","Meus"],["admin","Admin"]].map(([v,lb]) => (
-          <button key={v} style={{...S.navBtn,...(view===v?S.navActive:{})}} onClick={()=>setView(v)}>
+          <button key={v} className="mob-nav-btn" style={{...S.navBtn,...(view===v?S.navActive:{})}} onClick={()=>setView(v)}>
             {lb}
           </button>
         ))}
       </nav>
 
-      <main style={S.main}>
+      <main style={S.main} className="mob-main">
 
         {view==="agenda" && (
           <div>
-            <div style={S.weekNav}>
+            <div style={S.weekNav} className="mob-weeknav">
               <button style={S.wBtn} onClick={()=>setAgendaOffset(o=>o-1)} disabled={agendaOffset<=0}>Anterior</button>
               <span style={{color:"#7aa8d8",fontSize:13}}>
                 {fmtDate(agendaDays[0]).split(",")[1]?.trim()} -- {fmtDate(agendaDays[6]).split(",")[1]?.trim()}
@@ -195,13 +208,13 @@ export default function App() {
 
         {view==="agendar" && (
           <div style={S.formWrap}>
-            <div style={S.formCard}>
+            <div style={S.formCard} className="mob-formcard">
               <h2 style={S.formTitle}>Novo Agendamento</h2>
               {formSuccess ? (
                 <div style={S.successBox}>Agendamento realizado com sucesso!</div>
               ) : (
                 <div>
-                  <div style={S.row2}>
+                  <div style={S.row2} className="mob-row2">
                     <div style={{flex:1}}>
                       <label style={S.lbl}>Seu nome</label>
                       <select style={S.sel} value={form.nome} onChange={e=>setForm(f=>({...f,nome:e.target.value}))}>
@@ -219,7 +232,7 @@ export default function App() {
                   </div>
 
                   <label style={S.lbl}>Mostruario</label>
-                  <div style={S.mGrid}>
+                  <div style={S.mGrid} className="mob-mgrid">
                     {MOSTRUARIOS.map(m => (
                       <button key={m.id}
                         style={{...S.mBtn,...(form.mostruario===m.id?S.mBtnActive:{})}}
@@ -230,7 +243,7 @@ export default function App() {
                     ))}
                   </div>
 
-                  <div style={S.row3}>
+                  <div style={S.row3} className="mob-row3">
                     <div style={{flex:"0 0 160px"}}>
                       <label style={S.lbl}>Data</label>
                       <input type="date" style={S.inp} min={dateKey(today())} value={form.data}
@@ -265,7 +278,7 @@ export default function App() {
 
         {view==="meus" && (
           <div>
-            <div style={{...S.formCard,maxWidth:500,marginBottom:16}}>
+            <div style={{...S.formCard,maxWidth:500,marginBottom:16}} className="mob-formcard">
               <h2 style={S.formTitle}>Meus Agendamentos</h2>
               <label style={S.lbl}>Filtrar por nome</label>
               <select style={S.sel} value={form.nome} onChange={e=>setForm(f=>({...f,nome:e.target.value}))}>
@@ -303,7 +316,7 @@ export default function App() {
 
         {view==="admin" && (
           <div style={S.formWrap}>
-            <div style={S.formCard}>
+            <div style={S.formCard} className="mob-formcard">
               <h2 style={S.formTitle}>Administracao</h2>
 
               {!adminOk ? (
@@ -339,7 +352,7 @@ export default function App() {
                   </div>
 
                   <label style={S.lbl}>Adicionar participante</label>
-                  <div style={{display:"flex",gap:8,marginTop:6}}>
+                  <div style={{display:"flex",gap:8,marginTop:6}} className="mob-addrow">
                     <input
                       type="text"
                       placeholder="Nome completo..."
@@ -417,14 +430,14 @@ export default function App() {
 
 const S = {
   root:      { width:"100%", minHeight:"100vh", background:"linear-gradient(160deg,#05080f 0%,#0a0f1e 50%,#060c18 100%)", fontFamily:"'Segoe UI',sans-serif", color:"#c8d8f0" },
-  header:    { width:"100%", background:"linear-gradient(90deg,#080e1c,#0d1a30)", borderBottom:"1px solid #1e3a5f", padding:"18px 32px", boxShadow:"0 2px 20px rgba(30,80,160,0.3)" },
+  header:    { width:"100%", background:"linear-gradient(90deg,#080e1c,#0d1a30)", borderBottom:"1px solid #1e3a5f", padding:"18px 20px", boxShadow:"0 2px 20px rgba(30,80,160,0.3)" },
   hInner:    { maxWidth:1200, margin:"0 auto" },
   hTag:      { fontSize:10, letterSpacing:4, textTransform:"uppercase", color:"#4a9eff", marginBottom:4, opacity:0.8 },
   hTitle:    { margin:0, fontSize:22, fontWeight:600, color:"#e0ecff", letterSpacing:1 },
   nav:       { display:"flex", justifyContent:"center", background:"#040810", borderBottom:"1px solid #111e35" },
   navBtn:    { flex:"0 0 130px", padding:"13px 8px", background:"none", border:"none", color:"#3a5a80", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", justifyContent:"center", gap:6, borderBottom:"2px solid transparent", transition:"all 0.2s" },
   navActive: { color:"#e0ecff", borderBottom:"2px solid #4a9eff", background:"#060d1a" },
-  main:      { width:"100%", maxWidth:1200, margin:"0 auto", padding:"24px 32px 80px" },
+  main:      { width:"100%", maxWidth:1200, margin:"0 auto", padding:"24px 20px 80px" },
   weekNav:   { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20, gap:8 },
   wBtn:      { background:"rgba(74,158,255,0.08)", border:"1px solid #1e3a5f", color:"#4a9eff", padding:"7px 16px", borderRadius:6, cursor:"pointer", fontSize:12 },
   dGrid:     { display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:12 },
@@ -435,7 +448,7 @@ const S = {
   agCard:    { display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(74,158,255,0.05)", border:"1px solid #152540", borderRadius:8, cursor:"pointer" },
   fixoTag:   { fontSize:10, letterSpacing:1, textTransform:"uppercase", background:"rgba(74,158,255,0.1)", color:"#4a9eff", border:"1px solid rgba(74,158,255,0.3)", borderRadius:4, padding:"2px 6px" },
   formWrap:  { display:"flex", justifyContent:"center" },
-  formCard:  { background:"rgba(255,255,255,0.025)", border:"1px solid #111e35", borderRadius:12, padding:"28px 24px", width:"100%", maxWidth:700 },
+  formCard:  { background:"rgba(255,255,255,0.025)", border:"1px solid #111e35", borderRadius:12, padding:"28px 24px", width:"100%", maxWidth:700, boxSizing:"border-box" },
   formTitle: { margin:"0 0 20px", fontSize:18, fontWeight:600, color:"#e0ecff" },
   lbl:       { display:"block", fontSize:10, letterSpacing:2.5, textTransform:"uppercase", color:"#4a9eff", marginBottom:6, marginTop:16, opacity:0.85 },
   sel:       { width:"100%", padding:"10px 12px", background:"#060d1a", border:"1px solid #1a3050", borderRadius:7, color:"#c8d8f0", fontSize:14 },
