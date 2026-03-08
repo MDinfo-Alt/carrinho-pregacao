@@ -24,6 +24,12 @@ const MOSTRUARIOS = [
   { id: "display",   label: "Display",    img: DISPLAY_IMG  },
 ];
 
+const LOCAIS = [
+  "Supermercado Bem Bom",
+  "Praca da Juventude",
+  "Tendi Tudo",
+];
+
 const DEFAULT_MEMBERS = [
   "Ana Silva","Carlos Souza","Maria Oliveira","Joao Santos",
   "Fernanda Lima","Pedro Rocha","Luciana Costa","Roberto Alves",
@@ -60,7 +66,7 @@ export default function App() {
     nome:"", dupla:"", mostruario:"",
     data: dateKey(today()),
     horaInicio:"09:00", horaFim:"11:00",
-    fixo: false,
+    local:"", fixo: false,
   });
   const [formError,   setFormError]   = useState("");
   const [formSuccess, setFormSuccess] = useState(false);
@@ -112,6 +118,7 @@ export default function App() {
     if (form.nome===form.dupla) return setFormError("Voce e a dupla nao podem ser a mesma pessoa.");
     if (!form.mostruario) return setFormError("Selecione o mostruario.");
     if (!form.data)       return setFormError("Selecione a data.");
+    if (!form.local)      return setFormError("Selecione o local.");
     if (form.horaInicio >= form.horaFim) return setFormError("Horario final deve ser maior que o inicial.");
     if (hasConflict(form.data, form.horaInicio, form.horaFim, form.mostruario))
       return setFormError("Este mostruario ja tem agendamento neste periodo.");
@@ -228,6 +235,7 @@ export default function App() {
                               <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
                                 <span style={{fontSize:13,color:"#c8d8f0"}}>{ms?.label}</span>
                                 <span style={{fontSize:11,color:"#3a6080"}}>{a.nome} e {a.dupla}</span>
+                                {a.local && <span style={{fontSize:11,color:"#2a7abf",marginTop:1}}>📍 {a.local}</span>}
                               </div>
                               {a.fixo && <span style={S.fixoTag}>Fixo</span>}
                             </div>
@@ -276,6 +284,17 @@ export default function App() {
                         onClick={()=>setForm(f=>({...f,mostruario:m.id}))}>
                         <img src={m.img} alt={m.label} style={{width:36,height:48,objectFit:"contain"}} />
                         <span style={{fontSize:11,marginTop:4,color:form.mostruario===m.id?"#e0ecff":"#3a5a80"}}>{m.label}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <label style={S.lbl}>Local</label>
+                  <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:6}}>
+                    {LOCAIS.map(l => (
+                      <button key={l}
+                        style={{...S.localBtn,...(form.local===l?S.localBtnActive:{})}}
+                        onClick={()=>setForm(f=>({...f,local:l}))}>
+                        📍 {l}
                       </button>
                     ))}
                   </div>
@@ -341,6 +360,7 @@ export default function App() {
                         <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
                           <span style={{fontSize:13,color:"#c8d8f0"}}>{ms?.label} -- {fmtDate(d)}</span>
                           <span style={{fontSize:11,color:"#3a6080"}}>{a.nome} e {a.dupla}</span>
+                        {a.local && <span style={{fontSize:11,color:"#2a7abf",marginTop:1}}>📍 {a.local}</span>}
                         </div>
                         {a.fixo && <span style={S.fixoTag}>Fixo</span>}
                       </div>
@@ -429,7 +449,8 @@ export default function App() {
               <h3 style={{margin:"0 0 4px",fontSize:20,fontWeight:600,color:"#e0ecff"}}>{ms?.label}</h3>
               <p style={{color:"#4a9eff",fontSize:13,margin:"4px 0",textTransform:"capitalize"}}>{fmtDate(d)}</p>
               <p style={{fontSize:17,margin:"10px 0 4px",color:"#c8d8f0",fontWeight:"bold"}}>{modal.horaInicio} - {modal.horaFim}</p>
-              <p style={{fontSize:14,margin:"6px 0 12px",color:"#7aa8d8"}}>{modal.nome} e {modal.dupla}</p>
+              <p style={{fontSize:14,margin:"6px 0 4px",color:"#7aa8d8"}}>{modal.nome} e {modal.dupla}</p>
+              {modal.local && <p style={{fontSize:13,margin:"4px 0 12px",color:"#2a7abf"}}>📍 {modal.local}</p>}
               {modal.fixo && <span style={S.fixoTag}>Agendamento Fixo</span>}
               <div style={{display:"flex",gap:10,marginTop:20}}>
                 <button style={{flex:1,padding:11,background:"rgba(180,50,50,0.12)",border:"1px solid #5a2020",borderRadius:8,color:"#e07070",cursor:"pointer",fontSize:13}}
@@ -479,5 +500,7 @@ const S = {
   successBox:{ padding:20, textAlign:"center", background:"rgba(30,160,100,0.1)", border:"1px solid #1a5040", borderRadius:8, fontSize:16, color:"#50d090" },
   subBtn:    { marginTop:20, width:"100%", padding:14, background:"linear-gradient(90deg,#1a6abf,#2a90ff)", border:"none", borderRadius:8, color:"#fff", fontSize:15, fontWeight:600, cursor:"pointer", letterSpacing:0.8, boxShadow:"0 4px 20px rgba(42,144,255,0.3)" },
   overlay:   { position:"fixed", inset:0, background:"rgba(0,5,15,0.85)", backdropFilter:"blur(6px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:16 },
+  localBtn:      { padding:"9px 14px", background:"#060d1a", border:"1px solid #1a3050", borderRadius:8, color:"#3a5a80", cursor:"pointer", fontSize:13, transition:"all 0.2s" },
+  localBtnActive:{ border:"1px solid #4a9eff", background:"rgba(74,158,255,0.12)", color:"#e0ecff" },
   modalCard: { background:"#080f1e", border:"1px solid #2a6abf", borderRadius:14, padding:"28px 24px", maxWidth:380, width:"100%", textAlign:"center", boxShadow:"0 0 50px rgba(42,106,191,0.25)" },
 };
