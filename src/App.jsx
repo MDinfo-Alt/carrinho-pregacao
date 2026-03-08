@@ -61,8 +61,6 @@ export default function App() {
   const [loading,      setLoading]     = useState(true);
   const [modal,        setModal]       = useState(null); // {type:"normal"|"fixo", data:...}
   const [agendaOffset, setAgendaOffset]= useState(0);
-  const [user,         setUser]        = useState(null);
-  const [authLoading,  setAuthLoading] = useState(true);
 
   const [adminOk,  setAdminOk]  = useState(false);
   const [pinInput, setPinInput] = useState("");
@@ -85,8 +83,6 @@ export default function App() {
     const s = document.createElement("style");
     s.innerHTML = "* { margin:0; padding:0; box-sizing:border-box; } body,#root { width:100%; min-height:100vh; background:#f0f4f8; }";
     document.head.appendChild(s);
-
-    const unsubAuth = onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); });
 
     const unsubAg = onSnapshot(collection(db, "agendamentos"), snap => {
       setAgendamentos(snap.docs.map(d => ({ id: d.id, ...d.data() })));
