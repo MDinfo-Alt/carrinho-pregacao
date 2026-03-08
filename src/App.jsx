@@ -26,8 +26,8 @@ const MOSTRUARIOS = [
 
 const LOCAIS = [
   "Supermercado Bem Bom",
-  "Praca da Juventude",
-  "Tendi Tudo",
+  "Praça da Juventude",
+  "Tend Tudo",
 ];
 
 const DEFAULT_MEMBERS = [
@@ -60,7 +60,7 @@ export default function App() {
   const [pinError,  setPinError]  = useState(false);
   const [novoNome,  setNovoNome]  = useState("");
   const [nomeError, setNomeError] = useState("");
-  const PIN = "1234";
+  const PIN = "@1914";
 
   const [form, setForm] = useState({
     nome:"", dupla:"", mostruario:"",
