@@ -74,7 +74,7 @@ export default function App() {
   useEffect(() => {
     // Global CSS reset
     const s = document.createElement("style");
-    s.innerHTML = "* { margin:0; padding:0; box-sizing:border-box; } body,#root { width:100%; min-height:100vh; background:#05080f; }";
+    s.innerHTML = "* { margin:0; padding:0; box-sizing:border-box; } body,#root { width:100%; min-height:100vh; background:#f0f4f8; }";
     document.head.appendChild(s);
 
     // Listen to agendamentos in realtime
@@ -156,9 +156,9 @@ export default function App() {
 
   if (loading) return (
     <div style={{...S.root, display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:16}}>
-      <div style={{width:40,height:40,borderRadius:"50%",border:"3px solid #4a9eff",borderTopColor:"transparent",animation:"spin 0.8s linear infinite"}} />
+      <div style={{width:40,height:40,borderRadius:"50%",border:"3px solid #2a90ff",borderTopColor:"transparent",animation:"spin 0.8s linear infinite"}} />
       <style>{"@keyframes spin { to { transform: rotate(360deg) } }"}</style>
-      <p style={{color:"#4a9eff",fontSize:14}}>Conectando...</p>
+      <p style={{color:"#1a6abf",fontSize:14}}>Conectando...</p>
     </div>
   );
 
@@ -166,10 +166,10 @@ export default function App() {
     <div style={S.root}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }
-        select option { background: #060d1a; }
+        select option { background: #ffffff; }
         input, select { font-size: 16px !important; }
         ::-webkit-scrollbar { width:6px } ::-webkit-scrollbar-track { background:#060d1a }
-        ::-webkit-scrollbar-thumb { background:#1e3a5f; border-radius:3px }
+        ::-webkit-scrollbar-thumb { background:#b0c4de; border-radius:3px }
         @media (max-width: 600px) {
           .mob-header  { padding: 14px 16px !important; }
           .mob-main    { padding: 14px 12px 100px !important; }
@@ -206,7 +206,7 @@ export default function App() {
           <div>
             <div style={S.weekNav} className="mob-weeknav">
               <button style={S.wBtn} onClick={()=>setAgendaOffset(o=>o-1)} disabled={agendaOffset<=0}>Anterior</button>
-              <span style={{color:"#7aa8d8",fontSize:13}}>
+              <span style={{color:"#4a7aaa",fontSize:13}}>
                 {fmtDate(agendaDays[0]).split(",")[1]?.trim()} -- {fmtDate(agendaDays[6]).split(",")[1]?.trim()}
               </span>
               <button style={S.wBtn} onClick={()=>setAgendaOffset(o=>o+1)}>Proxima</button>
@@ -220,7 +220,7 @@ export default function App() {
                   <div key={key} style={{...S.dayCard,...(isToday?S.dayToday:{})}}>
                     <div style={S.dayHead}>
                       <span style={S.dayName}>{isToday?"Hoje -- ":""}{fmtDate(dia)}</span>
-                      {diaAg.length===0 && <span style={{color:"#253550",fontSize:11,fontStyle:"italic"}}>Sem agendamentos</span>}
+                      {diaAg.length===0 && <span style={{color:"#aac0d8",fontSize:11,fontStyle:"italic"}}>Sem agendamentos</span>}
                     </div>
                     {diaAg.length>0 && (
                       <div style={{padding:"8px 10px",display:"flex",flexDirection:"column",gap:6}}>
@@ -228,14 +228,14 @@ export default function App() {
                           const ms = MOSTRUARIOS.find(m=>m.id===a.mostruario);
                           return (
                             <div key={a.id} style={S.agCard} onClick={()=>setModal(a)}>
-                              <div style={{fontSize:12,fontWeight:"bold",color:"#4a9eff",minWidth:90}}>
+                              <div style={{fontSize:12,fontWeight:"bold",color:"#1a6abf",minWidth:90}}>
                                 {a.horaInicio} - {a.horaFim}
                               </div>
                               {ms?.img && <img src={ms.img} alt={ms.label} style={{width:22,height:30,objectFit:"contain"}} />}
                               <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
-                                <span style={{fontSize:13,color:"#c8d8f0"}}>{ms?.label}</span>
-                                <span style={{fontSize:11,color:"#3a6080"}}>{a.nome} e {a.dupla}</span>
-                                {a.local && <span style={{fontSize:11,color:"#2a7abf",marginTop:1}}>📍 {a.local}</span>}
+                                <span style={{fontSize:13,color:"#1a2a3a",fontWeight:500}}>{ms?.label}</span>
+                                <span style={{fontSize:11,color:"#5a8aaa"}}>{a.nome} e {a.dupla}</span>
+                                {a.local && <span style={{fontSize:11,color:"#1a6abf",marginTop:1}}>📍 {a.local}</span>}
                               </div>
                               {a.fixo && <span style={S.fixoTag}>Fixo</span>}
                             </div>
@@ -321,7 +321,7 @@ export default function App() {
 
                   <label style={{display:"flex",alignItems:"center",marginTop:16,cursor:"pointer",gap:8}}>
                     <input type="checkbox" checked={form.fixo} onChange={e=>setForm(f=>({...f,fixo:e.target.checked}))} />
-                    <span style={{color:"#7aa8d8",fontSize:14}}>Agendamento fixo (recorrente)</span>
+                    <span style={{color:"#4a7aaa",fontSize:14}}>Agendamento fixo (recorrente)</span>
                   </label>
 
                   {formError && <div style={S.errBox}>{formError}</div>}
@@ -355,12 +355,12 @@ export default function App() {
                     const d  = new Date(a.data+"T12:00:00");
                     return (
                       <div key={a.id} style={S.agCard} onClick={()=>setModal(a)}>
-                        <div style={{fontSize:12,fontWeight:"bold",color:"#4a9eff",minWidth:90}}>{a.horaInicio} - {a.horaFim}</div>
+                        <div style={{fontSize:12,fontWeight:"bold",color:"#1a6abf",minWidth:90}}>{a.horaInicio} - {a.horaFim}</div>
                         {ms?.img && <img src={ms.img} alt={ms.label} style={{width:22,height:30,objectFit:"contain"}} />}
                         <div style={{flex:1,display:"flex",flexDirection:"column",gap:2}}>
-                          <span style={{fontSize:13,color:"#c8d8f0"}}>{ms?.label} -- {fmtDate(d)}</span>
-                          <span style={{fontSize:11,color:"#3a6080"}}>{a.nome} e {a.dupla}</span>
-                        {a.local && <span style={{fontSize:11,color:"#2a7abf",marginTop:1}}>📍 {a.local}</span>}
+                          <span style={{fontSize:13,color:"#1a2a3a",fontWeight:500}}>{ms?.label} -- {fmtDate(d)}</span>
+                          <span style={{fontSize:11,color:"#5a8aaa"}}>{a.nome} e {a.dupla}</span>
+                        {a.local && <span style={{fontSize:11,color:"#1a6abf",marginTop:1}}>📍 {a.local}</span>}
                         </div>
                         {a.fixo && <span style={S.fixoTag}>Fixo</span>}
                       </div>
@@ -379,20 +379,20 @@ export default function App() {
               <h2 style={S.formTitle}>Administracao</h2>
               {!adminOk ? (
                 <div style={{textAlign:"center",padding:"24px 0"}}>
-                  <p style={{color:"#7aa8d8",marginBottom:24,fontSize:14}}>Digite o PIN de administrador.</p>
+                  <p style={{color:"#4a7aaa",marginBottom:24,fontSize:14}}>Digite o PIN de administrador.</p>
                   <input type="password" placeholder="PIN" value={pinInput}
                     onChange={e=>{ setPinInput(e.target.value); setPinError(false); }}
                     onKeyDown={e=>e.key==="Enter" && handlePin()}
                     style={{...S.inp, textAlign:"center", fontSize:24, letterSpacing:10, maxWidth:180, display:"inline-block"}} />
-                  {pinError && <p style={{color:"#e07070",fontSize:13,marginTop:12}}>PIN incorreto.</p>}
+                  {pinError && <p style={{color:"#c03030",fontSize:13,marginTop:12}}>PIN incorreto.</p>}
                   <div><button style={{...S.subBtn, marginTop:16, maxWidth:200, display:"inline-block"}} onClick={handlePin}>Entrar</button></div>
                 </div>
               ) : (
                 <div>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
-                    <p style={{color:"#7aa8d8",fontSize:13}}>{membros.length} participante{membros.length!==1?"s":""}</p>
+                    <p style={{color:"#4a7aaa",fontSize:13}}>{membros.length} participante{membros.length!==1?"s":""}</p>
                     <button onClick={()=>setAdminOk(false)}
-                      style={{background:"none",border:"1px solid #1e3a5f",color:"#4a9eff",padding:"6px 14px",borderRadius:6,cursor:"pointer",fontSize:12}}>
+                      style={{background:"none",border:"1px solid #c8daea",color:"#1a6abf",padding:"6px 14px",borderRadius:6,cursor:"pointer",fontSize:12}}>
                       Sair
                     </button>
                   </div>
@@ -415,16 +415,16 @@ export default function App() {
                     {[...membros].sort((a,b)=>a.localeCompare(b)).map(m => {
                       const agCount = agendamentos.filter(a=>a.nome===m||a.dupla===m).length;
                       return (
-                        <div key={m} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:"rgba(74,158,255,0.04)",border:"1px solid #152540",borderRadius:8}}>
-                          <div style={{width:34,height:34,borderRadius:"50%",background:"linear-gradient(135deg,#1a3a6a,#2a5090)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:"#7ab8ff",fontWeight:700,flexShrink:0}}>
+                        <div key={m} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 14px",background:"#f8fbff",border:"1px solid #dce6f0",borderRadius:8}}>
+                          <div style={{width:34,height:34,borderRadius:"50%",background:"linear-gradient(135deg,#2a90ff,#1a6abf)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:"#7ab8ff",fontWeight:700,flexShrink:0}}>
                             {m.charAt(0).toUpperCase()}
                           </div>
                           <div style={{flex:1}}>
-                            <span style={{color:"#c8d8f0",fontSize:14}}>{m}</span>
-                            <span style={{color:"#3a6080",fontSize:11,marginLeft:10}}>{agCount} agendamento{agCount!==1?"s":""}</span>
+                            <span style={{color:"#1a2a3a",fontSize:14,fontWeight:500}}>{m}</span>
+                            <span style={{color:"#7aa8b8",fontSize:11,marginLeft:10}}>{agCount} agendamento{agCount!==1?"s":""}</span>
                           </div>
                           <button onClick={()=>handleRemoverMembro(m)}
-                            style={{background:"rgba(180,50,50,0.1)",border:"1px solid #5a2020",color:"#e07070",padding:"6px 12px",borderRadius:6,cursor:"pointer",fontSize:12}}>
+                            style={{background:"#fff0f0",border:"1px solid #f0b8b8",color:"#c03030",padding:"6px 12px",borderRadius:6,cursor:"pointer",fontSize:12}}>
                             Remover
                           </button>
                         </div>
@@ -446,16 +446,16 @@ export default function App() {
           <div style={S.overlay} onClick={()=>setModal(null)}>
             <div style={S.modalCard} onClick={e=>e.stopPropagation()}>
               {ms?.img && <img src={ms.img} alt={ms.label} style={{width:60,height:80,objectFit:"contain",marginBottom:10}} />}
-              <h3 style={{margin:"0 0 4px",fontSize:20,fontWeight:600,color:"#e0ecff"}}>{ms?.label}</h3>
-              <p style={{color:"#4a9eff",fontSize:13,margin:"4px 0",textTransform:"capitalize"}}>{fmtDate(d)}</p>
-              <p style={{fontSize:17,margin:"10px 0 4px",color:"#c8d8f0",fontWeight:"bold"}}>{modal.horaInicio} - {modal.horaFim}</p>
-              <p style={{fontSize:14,margin:"6px 0 4px",color:"#7aa8d8"}}>{modal.nome} e {modal.dupla}</p>
-              {modal.local && <p style={{fontSize:13,margin:"4px 0 12px",color:"#2a7abf"}}>📍 {modal.local}</p>}
+              <h3 style={{margin:"0 0 4px",fontSize:20,fontWeight:700,color:"#1a2a3a"}}>{ms?.label}</h3>
+              <p style={{color:"#1a6abf",fontSize:13,margin:"4px 0",textTransform:"capitalize"}}>{fmtDate(d)}</p>
+              <p style={{fontSize:17,margin:"10px 0 4px",color:"#1a2a3a",fontWeight:"bold"}}>{modal.horaInicio} - {modal.horaFim}</p>
+              <p style={{fontSize:14,margin:"6px 0 4px",color:"#5a8aaa"}}>{modal.nome} e {modal.dupla}</p>
+              {modal.local && <p style={{fontSize:13,margin:"4px 0 12px",color:"#1a6abf"}}>📍 {modal.local}</p>}
               {modal.fixo && <span style={S.fixoTag}>Agendamento Fixo</span>}
               <div style={{display:"flex",gap:10,marginTop:20}}>
-                <button style={{flex:1,padding:11,background:"rgba(180,50,50,0.12)",border:"1px solid #5a2020",borderRadius:8,color:"#e07070",cursor:"pointer",fontSize:13}}
+                <button style={{flex:1,padding:11,background:"#fff0f0",border:"1px solid #f0b8b8",borderRadius:8,color:"#c03030",cursor:"pointer",fontSize:13}}
                   onClick={()=>handleCancelar(modal.id)}>Cancelar</button>
-                <button style={{flex:1,padding:11,background:"rgba(74,158,255,0.1)",border:"1px solid #2a6abf",borderRadius:8,color:"#4a9eff",cursor:"pointer",fontSize:13}}
+                <button style={{flex:1,padding:11,background:"#e8f3ff",border:"1px solid #90c0f0",borderRadius:8,color:"#1a6abf",cursor:"pointer",fontSize:13}}
                   onClick={()=>setModal(null)}>Fechar</button>
               </div>
             </div>
@@ -467,40 +467,40 @@ export default function App() {
 }
 
 const S = {
-  root:      { width:"100%", minHeight:"100vh", background:"linear-gradient(160deg,#05080f 0%,#0a0f1e 50%,#060c18 100%)", fontFamily:"'Segoe UI',sans-serif", color:"#c8d8f0" },
-  header:    { width:"100%", background:"linear-gradient(90deg,#080e1c,#0d1a30)", borderBottom:"1px solid #1e3a5f", padding:"18px 20px", boxShadow:"0 2px 20px rgba(30,80,160,0.3)" },
+  root:      { width:"100%", minHeight:"100vh", background:"#f0f4f8", fontFamily:"'Segoe UI',sans-serif", color:"#1a2a3a" },
+  header:    { width:"100%", background:"linear-gradient(90deg,#1a6abf,#2a90ff)", padding:"18px 20px", boxShadow:"0 2px 12px rgba(42,144,255,0.25)" },
   hInner:    { maxWidth:1200, margin:"0 auto" },
-  hTag:      { fontSize:10, letterSpacing:4, textTransform:"uppercase", color:"#4a9eff", marginBottom:4, opacity:0.8 },
-  hTitle:    { margin:0, fontSize:22, fontWeight:600, color:"#e0ecff", letterSpacing:1 },
-  nav:       { display:"flex", justifyContent:"center", background:"#040810", borderBottom:"1px solid #111e35" },
-  navBtn:    { flex:"0 0 130px", padding:"13px 8px", background:"none", border:"none", color:"#3a5a80", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", justifyContent:"center", gap:6, borderBottom:"2px solid transparent", transition:"all 0.2s" },
-  navActive: { color:"#e0ecff", borderBottom:"2px solid #4a9eff", background:"#060d1a" },
+  hTag:      { fontSize:10, letterSpacing:4, textTransform:"uppercase", color:"rgba(255,255,255,0.75)", marginBottom:4 },
+  hTitle:    { margin:0, fontSize:22, fontWeight:700, color:"#ffffff", letterSpacing:0.5 },
+  nav:       { display:"flex", justifyContent:"center", background:"#ffffff", borderBottom:"1px solid #dce6f0", boxShadow:"0 1px 4px rgba(0,0,0,0.06)" },
+  navBtn:    { flex:"0 0 130px", padding:"13px 8px", background:"none", border:"none", color:"#7a9ab8", cursor:"pointer", fontSize:13, display:"flex", alignItems:"center", justifyContent:"center", gap:6, borderBottom:"2px solid transparent", transition:"all 0.2s" },
+  navActive: { color:"#1a6abf", borderBottom:"2px solid #2a90ff", background:"#f5f9ff" },
   main:      { width:"100%", maxWidth:1200, margin:"0 auto", padding:"24px 20px 80px" },
   weekNav:   { display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20, gap:8 },
-  wBtn:      { background:"rgba(74,158,255,0.08)", border:"1px solid #1e3a5f", color:"#4a9eff", padding:"7px 16px", borderRadius:6, cursor:"pointer", fontSize:12 },
+  wBtn:      { background:"#ffffff", border:"1px solid #c8daea", color:"#1a6abf", padding:"7px 16px", borderRadius:6, cursor:"pointer", fontSize:12, boxShadow:"0 1px 3px rgba(0,0,0,0.06)" },
   dGrid:     { display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:12 },
-  dayCard:   { background:"rgba(255,255,255,0.02)", border:"1px solid #111e35", borderRadius:10, overflow:"hidden" },
-  dayToday:  { border:"1px solid #2a6abf", boxShadow:"0 0 16px rgba(74,158,255,0.12)" },
-  dayHead:   { padding:"10px 14px", background:"rgba(10,20,40,0.6)", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #111e35" },
-  dayName:   { fontSize:12, color:"#7aa8d8", textTransform:"capitalize", letterSpacing:0.5 },
-  agCard:    { display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"rgba(74,158,255,0.05)", border:"1px solid #152540", borderRadius:8, cursor:"pointer" },
-  fixoTag:   { fontSize:10, letterSpacing:1, textTransform:"uppercase", background:"rgba(74,158,255,0.1)", color:"#4a9eff", border:"1px solid rgba(74,158,255,0.3)", borderRadius:4, padding:"2px 6px" },
+  dayCard:   { background:"#ffffff", border:"1px solid #dce6f0", borderRadius:10, overflow:"hidden", boxShadow:"0 1px 4px rgba(0,0,0,0.05)" },
+  dayToday:  { border:"1px solid #2a90ff", boxShadow:"0 0 0 3px rgba(42,144,255,0.12)" },
+  dayHead:   { padding:"10px 14px", background:"#f5f9ff", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #dce6f0" },
+  dayName:   { fontSize:12, color:"#4a7aaa", textTransform:"capitalize", letterSpacing:0.5, fontWeight:600 },
+  agCard:    { display:"flex", alignItems:"center", gap:10, padding:"10px 12px", background:"#f8fbff", border:"1px solid #dce6f0", borderRadius:8, cursor:"pointer", transition:"background 0.15s" },
+  fixoTag:   { fontSize:10, letterSpacing:1, textTransform:"uppercase", background:"#e8f0ff", color:"#1a6abf", border:"1px solid #b8d0f0", borderRadius:4, padding:"2px 6px" },
   formWrap:  { display:"flex", justifyContent:"center" },
-  formCard:  { background:"rgba(255,255,255,0.025)", border:"1px solid #111e35", borderRadius:12, padding:"28px 24px", width:"100%", maxWidth:700, boxSizing:"border-box" },
-  formTitle: { margin:"0 0 20px", fontSize:18, fontWeight:600, color:"#e0ecff" },
-  lbl:       { display:"block", fontSize:10, letterSpacing:2.5, textTransform:"uppercase", color:"#4a9eff", marginBottom:6, marginTop:16, opacity:0.85 },
-  sel:       { width:"100%", padding:"10px 12px", background:"#060d1a", border:"1px solid #1a3050", borderRadius:7, color:"#c8d8f0", fontSize:14 },
-  inp:       { width:"100%", padding:"10px 12px", background:"#060d1a", border:"1px solid #1a3050", borderRadius:7, color:"#c8d8f0", fontSize:14 },
+  formCard:  { background:"#ffffff", border:"1px solid #dce6f0", borderRadius:12, padding:"28px 24px", width:"100%", maxWidth:700, boxSizing:"border-box", boxShadow:"0 2px 8px rgba(0,0,0,0.06)" },
+  formTitle: { margin:"0 0 20px", fontSize:18, fontWeight:700, color:"#1a2a3a" },
+  lbl:       { display:"block", fontSize:10, letterSpacing:2.5, textTransform:"uppercase", color:"#1a6abf", marginBottom:6, marginTop:16, opacity:0.9 },
+  sel:       { width:"100%", padding:"10px 12px", background:"#f5f9ff", border:"1px solid #c8daea", borderRadius:7, color:"#1a2a3a", fontSize:14 },
+  inp:       { width:"100%", padding:"10px 12px", background:"#f5f9ff", border:"1px solid #c8daea", borderRadius:7, color:"#1a2a3a", fontSize:14 },
   row2:      { display:"flex", gap:12 },
   row3:      { display:"flex", gap:12, marginTop:4 },
   mGrid:     { display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8, marginTop:8 },
-  mBtn:      { display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"12px 6px", background:"#060d1a", border:"1px solid #1a3050", borderRadius:8, cursor:"pointer", transition:"all 0.2s" },
-  mBtnActive:{ border:"1px solid #4a9eff", background:"rgba(74,158,255,0.1)", boxShadow:"0 0 10px rgba(74,158,255,0.15)" },
-  errBox:    { marginTop:14, padding:"10px 14px", background:"rgba(200,50,50,0.1)", border:"1px solid #5a2020", borderRadius:7, fontSize:13, color:"#e07070" },
-  successBox:{ padding:20, textAlign:"center", background:"rgba(30,160,100,0.1)", border:"1px solid #1a5040", borderRadius:8, fontSize:16, color:"#50d090" },
-  subBtn:    { marginTop:20, width:"100%", padding:14, background:"linear-gradient(90deg,#1a6abf,#2a90ff)", border:"none", borderRadius:8, color:"#fff", fontSize:15, fontWeight:600, cursor:"pointer", letterSpacing:0.8, boxShadow:"0 4px 20px rgba(42,144,255,0.3)" },
-  overlay:   { position:"fixed", inset:0, background:"rgba(0,5,15,0.85)", backdropFilter:"blur(6px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:16 },
-  localBtn:      { padding:"9px 14px", background:"#060d1a", border:"1px solid #1a3050", borderRadius:8, color:"#3a5a80", cursor:"pointer", fontSize:13, transition:"all 0.2s" },
-  localBtnActive:{ border:"1px solid #4a9eff", background:"rgba(74,158,255,0.12)", color:"#e0ecff" },
-  modalCard: { background:"#080f1e", border:"1px solid #2a6abf", borderRadius:14, padding:"28px 24px", maxWidth:380, width:"100%", textAlign:"center", boxShadow:"0 0 50px rgba(42,106,191,0.25)" },
+  mBtn:      { display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"12px 6px", background:"#f5f9ff", border:"1px solid #c8daea", borderRadius:8, cursor:"pointer", transition:"all 0.2s" },
+  mBtnActive:{ border:"1px solid #2a90ff", background:"#e8f3ff", boxShadow:"0 0 0 3px rgba(42,144,255,0.12)" },
+  errBox:    { marginTop:14, padding:"10px 14px", background:"#fff0f0", border:"1px solid #f0b8b8", borderRadius:7, fontSize:13, color:"#c03030" },
+  successBox:{ padding:20, textAlign:"center", background:"#f0fff5", border:"1px solid #90d0a8", borderRadius:8, fontSize:16, color:"#207040" },
+  subBtn:    { marginTop:20, width:"100%", padding:14, background:"linear-gradient(90deg,#1a6abf,#2a90ff)", border:"none", borderRadius:8, color:"#fff", fontSize:15, fontWeight:600, cursor:"pointer", letterSpacing:0.5, boxShadow:"0 4px 12px rgba(42,144,255,0.3)" },
+  overlay:   { position:"fixed", inset:0, background:"rgba(10,30,60,0.5)", backdropFilter:"blur(4px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:100, padding:16 },
+  localBtn:      { padding:"9px 16px", background:"#f5f9ff", border:"1px solid #c8daea", borderRadius:8, color:"#4a7aaa", cursor:"pointer", fontSize:13, transition:"all 0.2s" },
+  localBtnActive:{ border:"1px solid #2a90ff", background:"#e8f3ff", color:"#1a6abf", fontWeight:600 },
+  modalCard: { background:"#ffffff", border:"1px solid #dce6f0", borderRadius:14, padding:"28px 24px", maxWidth:380, width:"100%", textAlign:"center", boxShadow:"0 8px 40px rgba(0,0,0,0.15)" },
 };
