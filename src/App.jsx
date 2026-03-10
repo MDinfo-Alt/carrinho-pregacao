@@ -32,11 +32,11 @@ const LOCAIS = [
 const DIAS_SEMANA = [
   { id: 0, label: "Domingo" },
   { id: 1, label: "Segunda" },
-  { id: 2, label: "Terca"   },
+  { id: 2, label: "Terça"   },
   { id: 3, label: "Quarta"  },
   { id: 4, label: "Quinta"  },
   { id: 5, label: "Sexta"   },
-  { id: 6, label: "Sabado"  },
+  { id: 6, label: "Sábado"  },
 ];
 
 const HOURS = Array.from({ length: 17 }, (_, i) => {
@@ -51,7 +51,7 @@ function fmtDate(d) { return d.toLocaleDateString("pt-BR", { weekday:"long", day
 function hoursOverlap(sA,eA,sB,eB) { return sA < eB && eA > sB; }
 function diaSemanaDeDate(dateStr) { return new Date(dateStr+"T12:00:00").getDay(); }
 
-const ADMIN_PIN = "1234";
+const ADMIN_PIN = "@1914";
 
 export default function App() {
   const [view,         setView]        = useState("agenda");
@@ -83,8 +83,6 @@ export default function App() {
     const s = document.createElement("style");
     s.innerHTML = "* { margin:0; padding:0; box-sizing:border-box; } body,#root { width:100%; min-height:100vh; background:#f0f4f8; }";
     document.head.appendChild(s);
-
-    const unsubAuth = onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); });
 
     const unsubAg = onSnapshot(collection(db, "agendamentos"), snap => {
       setAgendamentos(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -137,14 +135,14 @@ export default function App() {
     setFormError("");
     if (!form.nome)       return setFormError("Selecione seu nome.");
     if (!form.dupla)      return setFormError("Selecione a dupla.");
-    if (form.nome===form.dupla) return setFormError("Voce e a dupla nao podem ser a mesma pessoa.");
-    if (!form.mostruario) return setFormError("Selecione o mostruario.");
+    if (form.nome===form.dupla) return setFormError("Você e a dupla nao podem ser a mesma pessoa.");
+    if (!form.mostruario) return setFormError("Selecione o mostruário.");
     if (!form.local)      return setFormError("Selecione o local.");
-    if (form.horaInicio >= form.horaFim) return setFormError("Horario final deve ser maior que o inicial.");
+    if (form.horaInicio >= form.horaFim) return setFormError("Horário final deve ser maior que o inicial.");
 
     if (form.fixo) {
       if (hasConflictFixo(form.diaSemana, form.horaInicio, form.horaFim, form.mostruario))
-        return setFormError("Ja existe agendamento neste dia/horario/mostruario.");
+        return setFormError("Já existe agendamento neste dia/horário/mostruário.");
       await addDoc(collection(db, "fixos"), {
         nome: form.nome, dupla: form.dupla, mostruario: form.mostruario,
         local: form.local, diaSemana: form.diaSemana,
@@ -154,7 +152,7 @@ export default function App() {
     } else {
       if (!form.data) return setFormError("Selecione a data.");
       if (hasConflict(form.data, form.horaInicio, form.horaFim, form.mostruario))
-        return setFormError("Ja existe agendamento neste dia/horario/mostruario.");
+        return setFormError("Já existe agendamento neste dia/horário/mostruário.");
       await addDoc(collection(db, "agendamentos"), {
         nome: form.nome, dupla: form.dupla, mostruario: form.mostruario,
         local: form.local, data: form.data,
