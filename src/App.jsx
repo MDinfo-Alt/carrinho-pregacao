@@ -25,8 +25,8 @@ const MOSTRUARIOS = [
 
 const LOCAIS = [
   "Supermercado Bem Bom",
-  "Praca da Juventude",
-  "Tendi Tudo",
+  "Praça da Juventude",
+  "Tend Tudo",
 ];
 
 const DIAS_SEMANA = [
@@ -83,6 +83,8 @@ export default function App() {
     const s = document.createElement("style");
     s.innerHTML = "* { margin:0; padding:0; box-sizing:border-box; } body,#root { width:100%; min-height:100vh; background:#f0f4f8; }";
     document.head.appendChild(s);
+
+    const unsubAuth = onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); });
 
     const unsubAg = onSnapshot(collection(db, "agendamentos"), snap => {
       setAgendamentos(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -187,6 +189,56 @@ export default function App() {
     await saveMembros(membros.filter(m => m !== nome));
   }
 
+
+  function gerarPDF() {
+    const dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+    const mostruarioNome = id => MOSTRUARIOS.find(m=>m.id===id)?.label || id;
+
+    // Sort normais by data+hora
+    const normais = [...agendamentos].sort((a,b)=>(a.data+a.horaInicio).localeCompare(b.data+b.horaInicio));
+    // Sort fixos by diaSemana+hora
+    const fixosList = [...fixos].sort((a,b)=> a.diaSemana!==b.diaSemana ? a.diaSemana-b.diaSemana : a.horaInicio.localeCompare(b.horaInicio));
+
+    const rows_normais = normais.map(a => {
+      const d = new Date(a.data+"T12:00:00");
+      const dataFmt = d.toLocaleDateString("pt-BR", {weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+      return `<tr><td>${dataFmt}</td><td>${a.horaInicio} - ${a.horaFim}</td><td>${mostruarioNome(a.mostruario)}</td><td>${a.local||"-"}</td><td>${a.nome}</td><td>${a.dupla}</td></tr>`;
+    }).join("");
+
+    const rows_fixos = fixosList.map(f =>
+      `<tr style="background:#fffaf0"><td>Toda ${dias[f.diaSemana]}</td><td>${f.horaInicio} - ${f.horaFim}</td><td>${mostruarioNome(f.mostruario)}</td><td>${f.local||"-"}</td><td>${f.nome}</td><td>${f.dupla}</td></tr>`
+    ).join("");
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+    <title>Agendamentos - Carrinho de Publicações</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 24px; color: #1a2a3a; }
+      h1 { font-size: 20px; color: #1a6abf; margin-bottom: 4px; }
+      p.sub { color: #7a9ab8; font-size: 13px; margin-bottom: 24px; }
+      h2 { font-size: 15px; color: #1a6abf; margin: 24px 0 8px; border-bottom: 2px solid #dce6f0; padding-bottom: 6px; }
+      table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      th { background: #1a6abf; color: #fff; padding: 8px 10px; text-align: left; }
+      td { padding: 7px 10px; border-bottom: 1px solid #dce6f0; }
+      tr:hover td { background: #f5f9ff; }
+      .fixo-tag { background: #fff8e0; color: #8a6a00; border: 1px solid #f0d890; border-radius: 4px; padding: 2px 6px; font-size: 11px; }
+      @media print { button { display: none; } }
+    </style></head><body>
+    <h1>Carrinho de Publicações — Agendamentos</h1>
+    <p class="sub">Gerado em ${new Date().toLocaleString("pt-BR")}</p>
+    <h2>📅 Agendamentos por Data (${normais.length})</h2>
+    <table><thead><tr><th>Data</th><th>Horario</th><th>Mostruario</th><th>Local</th><th>Responsavel</th><th>Dupla</th></tr></thead>
+    <tbody>${rows_normais||"<tr><td colspan=6 style='color:#aaa;text-align:center'>Nenhum agendamento</td></tr>"}</tbody></table>
+    <h2>🔁 Agendamentos Fixos (${fixosList.length})</h2>
+    <table><thead><tr><th>Dia</th><th>Horario</th><th>Mostruario</th><th>Local</th><th>Responsavel</th><th>Dupla</th></tr></thead>
+    <tbody>${rows_fixos||"<tr><td colspan=6 style='color:#aaa;text-align:center'>Nenhum agendamento fixo</td></tr>"}</tbody></table>
+    <br><button onclick="window.print()">Imprimir</button>
+    </body></html>`;
+
+    const blob = new Blob([html], {type:"text/html"});
+    const url  = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  }
+
   function handlePin() {
     if (pinInput === ADMIN_PIN) { setAdminOk(true); setPinError(false); setPinInput(""); }
     else setPinError(true);
@@ -239,8 +291,8 @@ export default function App() {
       <header style={S.header} className="mob-header">
         <div style={{...S.hInner, display:"flex", justifyContent:"space-between", alignItems:"center"}}>
           <div>
-            <div style={S.hTag}>Testemunho Publico</div>
-            <h1 style={S.hTitle}>Carrinho de Publicacoes</h1>
+            <div style={S.hTag}>Testemunho Público</div>
+            <h1 style={S.hTitle}>Carrinho de Publicações</h1>
           </div>
 
         </div>
@@ -343,7 +395,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <label style={S.lbl}>Mostruario</label>
+                  <label style={S.lbl}>Mostruário</label>
                   <div style={S.mGrid} className="mob-mgrid">
                     {MOSTRUARIOS.map(m => (
                       <button key={m.id} style={{...S.mBtn,...(form.mostruario===m.id?S.mBtnActive:{})}}
@@ -372,13 +424,13 @@ export default function App() {
                           onChange={e=>setForm(f=>({...f,data:e.target.value}))} />
                       </div>
                       <div style={{flex:1}}>
-                        <label style={S.lbl}>Horario inicial</label>
+                        <label style={S.lbl}>Horário inicial</label>
                         <select style={S.sel} value={form.horaInicio} onChange={e=>setForm(f=>({...f,horaInicio:e.target.value}))}>
                           {HOURS.map(h=><option key={h} value={h}>{h}</option>)}
                         </select>
                       </div>
                       <div style={{flex:1}}>
-                        <label style={S.lbl}>Horario final</label>
+                        <label style={S.lbl}>Horário final</label>
                         <select style={S.sel} value={form.horaFim} onChange={e=>setForm(f=>({...f,horaFim:e.target.value}))}>
                           {HOURS.filter(h=>h>form.horaInicio).map(h=><option key={h} value={h}>{h}</option>)}
                         </select>
@@ -397,20 +449,20 @@ export default function App() {
                       </div>
                       <div style={S.row2} className="mob-row2">
                         <div style={{flex:1}}>
-                          <label style={S.lbl}>Horario inicial</label>
+                          <label style={S.lbl}>Horário inicial</label>
                           <select style={S.sel} value={form.horaInicio} onChange={e=>setForm(f=>({...f,horaInicio:e.target.value}))}>
                             {HOURS.map(h=><option key={h} value={h}>{h}</option>)}
                           </select>
                         </div>
                         <div style={{flex:1}}>
-                          <label style={S.lbl}>Horario final</label>
+                          <label style={S.lbl}>Horário final</label>
                           <select style={S.sel} value={form.horaFim} onChange={e=>setForm(f=>({...f,horaFim:e.target.value}))}>
                             {HOURS.filter(h=>h>form.horaInicio).map(h=><option key={h} value={h}>{h}</option>)}
                           </select>
                         </div>
                       </div>
                       <div style={{marginTop:12,padding:"10px 14px",background:"#fffaf0",border:"1px solid #f0d890",borderRadius:8,fontSize:13,color:"#8a6a00"}}>
-                        🔁 Este agendamento aparecera toda <strong>{DIAS_SEMANA.find(d=>d.id===form.diaSemana)?.label}</strong> de {form.horaInicio} as {form.horaFim}
+                        🔁 Este agendamento aparecerá toda <strong>{DIAS_SEMANA.find(d=>d.id===form.diaSemana)?.label}</strong> de {form.horaInicio} às {form.horaFim}
                       </div>
                     </div>
                   )}
@@ -496,7 +548,7 @@ export default function App() {
         {view==="admin" && (
           <div style={S.formWrap}>
             <div style={S.formCard} className="mob-formcard">
-              <h2 style={S.formTitle}>Administracao</h2>
+              <h2 style={S.formTitle}>Administração</h2>
               {!adminOk ? (
                 <div style={{textAlign:"center",padding:"24px 0"}}>
                   <p style={{color:"#4a7aaa",marginBottom:24,fontSize:14}}>Digite o PIN de administrador.</p>
@@ -509,13 +561,17 @@ export default function App() {
                 </div>
               ) : (
                 <div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
                     <p style={{color:"#4a7aaa",fontSize:13}}>{membros.length} participante{membros.length!==1?"s":""}</p>
                     <button onClick={()=>setAdminOk(false)}
                       style={{background:"none",border:"1px solid #c8daea",color:"#1a6abf",padding:"6px 14px",borderRadius:6,cursor:"pointer",fontSize:12}}>
                       Sair
                     </button>
                   </div>
+                  <button onClick={gerarPDF}
+                    style={{width:"100%",padding:"11px",background:"linear-gradient(90deg,#1a7a40,#2aaa60)",border:"none",borderRadius:8,color:"#fff",fontWeight:600,cursor:"pointer",fontSize:14,marginBottom:20,boxShadow:"0 2px 8px rgba(42,170,96,0.3)"}}>
+                    📄 Gerar PDF com todos os agendamentos
+                  </button>
                   <label style={S.lbl}>Adicionar participante</label>
                   <div style={{display:"flex",gap:8,marginTop:6}} className="mob-addrow">
                     <input type="text" placeholder="Nome completo..." value={novoNome}
