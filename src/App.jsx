@@ -314,7 +314,7 @@ export default function App() {
       </header>
 
       <nav style={S.nav}>
-        {[["agenda","Agenda"],["agendar","Agendar"],["meus","Meus"],["admin","Admin"]].map(([v,lb]) => (
+        {[["agenda","Agenda"],["agendar","Agendar"],["disponivel","Livre"],["meus","Meus"],["admin","Admin"]].map(([v,lb]) => (
           <button key={v} className="mob-nav-btn" style={{...S.navBtn,...(view===v?S.navActive:{})}} onClick={()=>setView(v)}>
             {lb}
           </button>
@@ -489,6 +489,150 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* DISPONIVEL */}
+        {view==="disponivel" && (() => {
+          const MOSTRUARIOS_LIST = [
+            { id:"carrinho1", label:"Carrinho 1" },
+            { id:"carrinho2", label:"Carrinho 2" },
+            { id:"carrinho3", label:"Carrinho 3" },
+            { id:"display",   label:"Display"    },
+          ];
+          const DIAS = ["Dom","Seg","Ter","Qua","Qui","Sex","Sab"];
+          const horas = Array.from({length:17},(_,i)=>`${String(i+6).padStart(2,"0")}:00`);
+
+          // dispMode: "data" or "semana"
+          const [dispMode,    setDispMode]    = useState("data");
+          const [dispData,    setDispData]    = useState(dateKey(today()));
+          const [dispDiaSem,  setDispDiaSem]  = useState(new Date().getDay());
+
+          function isOcupado(mostruarioId, hora) {
+            const horaFim = `${String(parseInt(hora)+1).padStart(2,"0")}:00`;
+            if (dispMode === "data") {
+              const diaSem = diaSemanaDeDate(dispData);
+              const normalOcup = agendamentos.some(a =>
+                a.data === dispData && a.mostruario === mostruarioId &&
+                hoursOverlap(hora, horaFim, a.horaInicio, a.horaFim)
+              );
+              const fixoOcup = fixos.some(f =>
+                f.diaSemana === diaSem && f.mostruario === mostruarioId &&
+                hoursOverlap(hora, horaFim, f.horaInicio, f.horaFim)
+              );
+              return { ocupado: normalOcup || fixoOcup, fixo: fixoOcup && !normalOcup };
+            } else {
+              const fixoOcup = fixos.some(f =>
+                f.diaSemana === dispDiaSem && f.mostruario === mostruarioId &&
+                hoursOverlap(hora, horaFim, f.horaInicio, f.horaFim)
+              );
+              return { ocupado: fixoOcup, fixo: fixoOcup };
+            }
+          }
+
+          function getInfo(mostruarioId, hora) {
+            const horaFim = `${String(parseInt(hora)+1).padStart(2,"0")}:00`;
+            if (dispMode === "data") {
+              const diaSem = diaSemanaDeDate(dispData);
+              const ag = agendamentos.find(a =>
+                a.data === dispData && a.mostruario === mostruarioId &&
+                hoursOverlap(hora, horaFim, a.horaInicio, a.horaFim)
+              );
+              if (ag) return `${ag.nome} e ${ag.dupla}`;
+              const fx = fixos.find(f =>
+                f.diaSemana === diaSem && f.mostruario === mostruarioId &&
+                hoursOverlap(hora, horaFim, f.horaInicio, f.horaFim)
+              );
+              if (fx) return `${fx.nome} e ${fx.dupla} (fixo)`;
+            } else {
+              const fx = fixos.find(f =>
+                f.diaSemana === dispDiaSem && f.mostruario === mostruarioId &&
+                hoursOverlap(hora, horaFim, f.horaInicio, f.horaFim)
+              );
+              if (fx) return `${fx.nome} e ${fx.dupla}`;
+            }
+            return null;
+          }
+
+          return (
+            <div>
+              {/* Controles */}
+              <div style={{background:"#fff",borderRadius:12,padding:"16px 20px",marginBottom:16,border:"1px solid #dce6f0",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+                <div style={{display:"flex",gap:8,marginBottom:12}}>
+                  <button onClick={()=>setDispMode("data")}
+                    style={{flex:1,padding:"9px 8px",background:dispMode==="data"?"#e8f3ff":"#f5f9ff",border:`1px solid ${dispMode==="data"?"#2a90ff":"#c8daea"}`,borderRadius:8,cursor:"pointer",fontSize:13,color:dispMode==="data"?"#1a6abf":"#4a7aaa",fontWeight:dispMode==="data"?600:400}}>
+                    📅 Por data
+                  </button>
+                  <button onClick={()=>setDispMode("semana")}
+                    style={{flex:1,padding:"9px 8px",background:dispMode==="semana"?"#e8f3ff":"#f5f9ff",border:`1px solid ${dispMode==="semana"?"#2a90ff":"#c8daea"}`,borderRadius:8,cursor:"pointer",fontSize:13,color:dispMode==="semana"?"#1a6abf":"#4a7aaa",fontWeight:dispMode==="semana"?600:400}}>
+                    🔁 Por dia da semana
+                  </button>
+                </div>
+                {dispMode==="data" ? (
+                  <input type="date" value={dispData} onChange={e=>setDispData(e.target.value)}
+                    style={{width:"100%",padding:"10px 12px",background:"#f5f9ff",border:"1px solid #c8daea",borderRadius:7,color:"#1a2a3a",fontSize:14,boxSizing:"border-box"}} />
+                ) : (
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    {["Domingo","Segunda","Terca","Quarta","Quinta","Sexta","Sabado"].map((d,i)=>(
+                      <button key={i} onClick={()=>setDispDiaSem(i)}
+                        style={{flex:1,minWidth:60,padding:"8px 4px",background:dispDiaSem===i?"#e8f3ff":"#f5f9ff",border:`1px solid ${dispDiaSem===i?"#2a90ff":"#c8daea"}`,borderRadius:8,cursor:"pointer",fontSize:12,color:dispDiaSem===i?"#1a6abf":"#4a7aaa",fontWeight:dispDiaSem===i?600:400}}>
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Legenda */}
+              <div style={{display:"flex",gap:12,marginBottom:12,flexWrap:"wrap"}}>
+                <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"#4a7aaa"}}>
+                  <div style={{width:14,height:14,borderRadius:3,background:"#d0f0d8",border:"1px solid #60b878"}}></div> Livre
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"#4a7aaa"}}>
+                  <div style={{width:14,height:14,borderRadius:3,background:"#ffd8d8",border:"1px solid #e08080"}}></div> Ocupado
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"#4a7aaa"}}>
+                  <div style={{width:14,height:14,borderRadius:3,background:"#fff0c0",border:"1px solid #d0a830"}}></div> Fixo
+                </div>
+              </div>
+
+              {/* Grade */}
+              <div style={{overflowX:"auto"}}>
+                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,minWidth:400}}>
+                  <thead>
+                    <tr>
+                      <th style={{padding:"8px 10px",background:"#1a6abf",color:"#fff",textAlign:"left",borderRadius:"8px 0 0 0",minWidth:60}}>Horário</th>
+                      {MOSTRUARIOS_LIST.map(m=>(
+                        <th key={m.id} style={{padding:"8px 10px",background:"#1a6abf",color:"#fff",textAlign:"center",minWidth:90}}>{m.label}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {horas.map((hora,hi) => (
+                      <tr key={hora} style={{background:hi%2===0?"#fff":"#f8fbff"}}>
+                        <td style={{padding:"7px 10px",fontWeight:600,color:"#4a7aaa",borderBottom:"1px solid #eef2f8",whiteSpace:"nowrap"}}>{hora}</td>
+                        {MOSTRUARIOS_LIST.map(m => {
+                          const {ocupado, fixo} = isOcupado(m.id, hora);
+                          const info = getInfo(m.id, hora);
+                          const bg = fixo ? "#fff0c0" : ocupado ? "#ffd8d8" : "#d0f0d8";
+                          const border = fixo ? "1px solid #d0a830" : ocupado ? "1px solid #e08080" : "1px solid #60b878";
+                          return (
+                            <td key={m.id} style={{padding:"5px 8px",borderBottom:"1px solid #eef2f8",textAlign:"center"}}>
+                              <div style={{background:bg,border,borderRadius:6,padding:"4px 6px",minHeight:28,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                                {info
+                                  ? <span style={{fontSize:10,color:fixo?"#8a6a00":ocupado?"#c03030":"#207040",lineHeight:1.3,textAlign:"center"}}>{info}</span>
+                                  : <span style={{fontSize:11,color:"#207040"}}>✓</span>
+                                }
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* MEUS */}
         {view==="meus" && (
