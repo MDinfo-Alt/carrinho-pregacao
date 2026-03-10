@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC0tWcZtzd20CVJc_LqCfg78UIHustiTHI",
@@ -60,6 +60,7 @@ export default function App() {
   const [membros,      setMembros]     = useState([]);
   const [loading,      setLoading]     = useState(true);
   const [modal,        setModal]       = useState(null); // {type:"normal"|"fixo", data:...}
+  const [editModal,    setEditModal]   = useState(null); // agendamento sendo editado
   const [agendaOffset, setAgendaOffset]= useState(0);
 
   const [adminOk,  setAdminOk]  = useState(false);
@@ -171,6 +172,22 @@ export default function App() {
       await deleteDoc(doc(db, "agendamentos", modal.data.id));
     }
     setModal(null);
+  }
+
+  function handleEditar() {
+    const a = modal.data;
+    setEditModal({ ...modal });
+    setModal(null);
+  }
+
+  async function handleSalvarEdicao(editForm) {
+    const { type, data } = editModal;
+    const colecao = type === "fixo" ? "fixos" : "agendamentos";
+    const campos = type === "fixo"
+      ? { nome: editForm.nome, dupla: editForm.dupla, mostruario: editForm.mostruario, local: editForm.local, diaSemana: editForm.diaSemana, horaInicio: editForm.horaInicio, horaFim: editForm.horaFim }
+      : { nome: editForm.nome, dupla: editForm.dupla, mostruario: editForm.mostruario, local: editForm.local, data: editForm.data, horaInicio: editForm.horaInicio, horaFim: editForm.horaFim };
+    await updateDoc(doc(db, colecao, data.id), campos);
+    setEditModal(null);
   }
 
   async function handleAdicionarMembro() {
@@ -632,10 +649,14 @@ export default function App() {
               <p style={{fontSize:14,margin:"6px 0 4px",color:"#5a8aaa"}}>{a.nome} e {a.dupla}</p>
               {a.local && <p style={{fontSize:13,margin:"4px 0 8px",color:"#1a6abf"}}>📍 {a.local}</p>}
               {isFixo && <p style={{fontSize:12,color:"#c09020",margin:"4px 0 8px"}}>Cancelar remove de todas as semanas</p>}
-              <div style={{display:"flex",gap:10,marginTop:16}}>
+              <div style={{display:"flex",gap:8,marginTop:16,flexWrap:"wrap"}}>
                 {(isOwner || adminOk) && (
                   <button style={{flex:1,padding:11,background:"#fff0f0",border:"1px solid #f0b8b8",borderRadius:8,color:"#c03030",cursor:"pointer",fontSize:13}}
                     onClick={handleCancelar}>Cancelar</button>
+                )}
+                {(isOwner || adminOk) && (
+                  <button style={{flex:1,padding:11,background:"#fff8e0",border:"1px solid #f0d890",borderRadius:8,color:"#8a6a00",cursor:"pointer",fontSize:13,fontWeight:600}}
+                    onClick={handleEditar}>✏️ Editar</button>
                 )}
                 <button style={{flex:1,padding:11,background:"#e8f3ff",border:"1px solid #90c0f0",borderRadius:8,color:"#1a6abf",cursor:"pointer",fontSize:13}}
                   onClick={()=>setModal(null)}>Fechar</button>
@@ -644,6 +665,154 @@ export default function App() {
           </div>
         );
       })()}
+
+      {/* MODAL EDITAR */}
+      {editModal && <EditarModal
+        editModal={editModal}
+        membros={membros}
+        onSalvar={handleSalvarEdicao}
+        onFechar={()=>setEditModal(null)}
+        adminOk={adminOk}
+      />}
+    </div>
+  );
+}
+
+function EditarModal({ editModal, membros, onSalvar, onFechar }) {
+  const { type, data } = editModal;
+  const isFixo = type === "fixo";
+
+  const MOSTRUARIOS = [
+    { id: "carrinho1", label: "Carrinho 1" },
+    { id: "carrinho2", label: "Carrinho 2" },
+    { id: "carrinho3", label: "Carrinho 3" },
+    { id: "display",   label: "Display"    },
+  ];
+  const LOCAIS = ["Supermercado Bem Bom","Praca da Juventude","Tendi Tudo"];
+  const DIAS_SEMANA = [
+    {id:0,label:"Domingo"},{id:1,label:"Segunda"},{id:2,label:"Terca"},
+    {id:3,label:"Quarta"},{id:4,label:"Quinta"},{id:5,label:"Sexta"},{id:6,label:"Sabado"},
+  ];
+  const HOURS = Array.from({length:17},(_,i)=>`${String(i+6).padStart(2,"0")}:00`);
+
+  const [f, setF] = useState({
+    nome:       data.nome,
+    dupla:      data.dupla,
+    mostruario: data.mostruario,
+    local:      data.local || "",
+    horaInicio: data.horaInicio,
+    horaFim:    data.horaFim,
+    data:       data.data || "",
+    diaSemana:  data.diaSemana ?? 1,
+  });
+  const [erro, setErro] = useState("");
+
+  function salvar() {
+    if (!f.nome)       return setErro("Selecione seu nome.");
+    if (!f.dupla)      return setErro("Selecione a dupla.");
+    if (f.nome===f.dupla) return setErro("Voce e a dupla nao podem ser iguais.");
+    if (!f.mostruario) return setErro("Selecione o mostruario.");
+    if (!f.local)      return setErro("Selecione o local.");
+    if (f.horaInicio >= f.horaFim) return setErro("Horario final deve ser maior que o inicial.");
+    onSalvar(f);
+  }
+
+  const lbl = { display:"block", fontSize:10, letterSpacing:2.5, textTransform:"uppercase", color:"#1a6abf", marginBottom:6, marginTop:16, opacity:0.9 };
+  const sel = { width:"100%", padding:"10px 12px", background:"#f5f9ff", border:"1px solid #c8daea", borderRadius:7, color:"#1a2a3a", fontSize:14 };
+  const inp = { width:"100%", padding:"10px 12px", background:"#f5f9ff", border:"1px solid #c8daea", borderRadius:7, color:"#1a2a3a", fontSize:14 };
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(10,30,60,0.6)",backdropFilter:"blur(4px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200,padding:16}}
+      onClick={onFechar}>
+      <div style={{background:"#fff",borderRadius:14,padding:"28px 24px",maxWidth:480,width:"100%",boxShadow:"0 8px 40px rgba(0,0,0,0.18)",maxHeight:"90vh",overflowY:"auto"}}
+        onClick={e=>e.stopPropagation()}>
+        <h3 style={{margin:"0 0 4px",fontSize:18,fontWeight:700,color:"#1a2a3a"}}>✏️ Editar Agendamento</h3>
+        {isFixo && <p style={{fontSize:12,color:"#8a6a00",marginBottom:4}}>🔁 Agendamento fixo — alteração vale para todas as semanas</p>}
+
+        <div style={{display:"flex",gap:12,marginTop:4}}>
+          <div style={{flex:1}}>
+            <label style={lbl}>Seu nome</label>
+            <select style={sel} value={f.nome} onChange={e=>setF(x=>({...x,nome:e.target.value}))}>
+              <option value="">Selecione...</option>
+              {membros.map(m=><option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+          <div style={{flex:1}}>
+            <label style={lbl}>Dupla</label>
+            <select style={sel} value={f.dupla} onChange={e=>setF(x=>({...x,dupla:e.target.value}))}>
+              <option value="">Selecione...</option>
+              {membros.filter(m=>m!==f.nome).map(m=><option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <label style={lbl}>Mostruario</label>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:8,marginTop:6}}>
+          {MOSTRUARIOS.map(m=>(
+            <button key={m.id} onClick={()=>setF(x=>({...x,mostruario:m.id}))}
+              style={{padding:"10px 4px",background:f.mostruario===m.id?"#e8f3ff":"#f5f9ff",border:`1px solid ${f.mostruario===m.id?"#2a90ff":"#c8daea"}`,borderRadius:8,cursor:"pointer",fontSize:12,color:f.mostruario===m.id?"#1a6abf":"#4a7aaa",fontWeight:f.mostruario===m.id?600:400}}>
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        <label style={lbl}>Local</label>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:6}}>
+          {LOCAIS.map(l=>(
+            <button key={l} onClick={()=>setF(x=>({...x,local:l}))}
+              style={{padding:"8px 14px",background:f.local===l?"#e8f3ff":"#f5f9ff",border:`1px solid ${f.local===l?"#2a90ff":"#c8daea"}`,borderRadius:8,cursor:"pointer",fontSize:13,color:f.local===l?"#1a6abf":"#4a7aaa",fontWeight:f.local===l?600:400}}>
+              📍 {l}
+            </button>
+          ))}
+        </div>
+
+        {isFixo ? (
+          <div>
+            <label style={lbl}>Dia da semana</label>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>
+              {DIAS_SEMANA.map(d=>(
+                <button key={d.id} onClick={()=>setF(x=>({...x,diaSemana:d.id}))}
+                  style={{padding:"7px 10px",background:f.diaSemana===d.id?"#e8f3ff":"#f5f9ff",border:`1px solid ${f.diaSemana===d.id?"#2a90ff":"#c8daea"}`,borderRadius:8,cursor:"pointer",fontSize:12,color:f.diaSemana===d.id?"#1a6abf":"#4a7aaa",fontWeight:f.diaSemana===d.id?600:400}}>
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <label style={lbl}>Data</label>
+            <input type="date" style={inp} value={f.data} onChange={e=>setF(x=>({...x,data:e.target.value}))} />
+          </div>
+        )}
+
+        <div style={{display:"flex",gap:12,marginTop:4}}>
+          <div style={{flex:1}}>
+            <label style={lbl}>Horario inicial</label>
+            <select style={sel} value={f.horaInicio} onChange={e=>setF(x=>({...x,horaInicio:e.target.value}))}>
+              {HOURS.map(h=><option key={h} value={h}>{h}</option>)}
+            </select>
+          </div>
+          <div style={{flex:1}}>
+            <label style={lbl}>Horario final</label>
+            <select style={sel} value={f.horaFim} onChange={e=>setF(x=>({...x,horaFim:e.target.value}))}>
+              {HOURS.filter(h=>h>f.horaInicio).map(h=><option key={h} value={h}>{h}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {erro && <div style={{marginTop:12,padding:"10px 14px",background:"#fff0f0",border:"1px solid #f0b8b8",borderRadius:7,fontSize:13,color:"#c03030"}}>{erro}</div>}
+
+        <div style={{display:"flex",gap:10,marginTop:20}}>
+          <button onClick={salvar}
+            style={{flex:2,padding:13,background:"linear-gradient(90deg,#1a6abf,#2a90ff)",border:"none",borderRadius:8,color:"#fff",fontSize:14,fontWeight:600,cursor:"pointer",boxShadow:"0 4px 12px rgba(42,144,255,0.3)"}}>
+            Salvar alterações
+          </button>
+          <button onClick={onFechar}
+            style={{flex:1,padding:13,background:"#f5f9ff",border:"1px solid #c8daea",borderRadius:8,color:"#4a7aaa",fontSize:14,cursor:"pointer"}}>
+            Cancelar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
